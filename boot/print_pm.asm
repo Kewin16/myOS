@@ -1,8 +1,7 @@
-; print_pm.asm
-; 32-bit protected mode: no BIOS anymore, so we write straight into
-; video memory. In text mode the screen lives at 0xB8000, and each
-; character takes 2 bytes: the ASCII code, then a colour byte.
-; Input: EBX = address of a null-terminated string
+; print_pm.asm - prints a string in 32-bit protected mode
+; no bios anymore so we write straight to video memory at 0xb8000.
+; each char on screen = 2 bytes: the ascii code then the colour
+; put the string's address in ebx before calling
 
 [bits 32]
 VIDEO_MEMORY equ 0xb8000
@@ -10,16 +9,16 @@ WHITE_ON_BLACK equ 0x0f
 
 print_string_pm:
   pusha
-  mov edx, VIDEO_MEMORY   ; EDX = where the next character goes (top-left)
+  mov edx, VIDEO_MEMORY   ; edx = where on screen we're writing (starts top left)
 
 .loop:
-  mov al, [ebx]           ; AL = the character
-  mov ah, WHITE_ON_BLACK  ; AH = its colour
+  mov al, [ebx]           ; char
+  mov ah, WHITE_ON_BLACK  ; colour
   cmp al, 0               ; end of string?
   je .done
-  mov [edx], ax           ; write character + colour to the screen
-  add ebx, 1              ; next character in the string
-  add edx, 2              ; next cell on screen (2 bytes per cell)
+  mov [edx], ax           ; write both bytes to the screen
+  add ebx, 1              ; next char
+  add edx, 2              ; next screen cell (2 bytes each)
   jmp .loop
 
 .done:

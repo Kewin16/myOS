@@ -1,15 +1,15 @@
-; print.asm
-; 16-bit real mode: print a null-terminated string using the BIOS.
-; Input: SI = address of the string
+; print.asm - prints a string using the bios (16-bit real mode only)
+; put the string's address in si before calling, string has to end with a 0
+
 print_string:
-  pusha              ; save all registers so the caller's values survive
-  mov ah, 0x0e       ; BIOS teletype function
+  pusha              ; save regs so we don't mess up whoever called us
+  mov ah, 0x0e       ; 0x0e = bios "print a char" function
 .loop:
-  lodsb              ; AL = [SI], then SI++
-  cmp al, 0          ; end of string?
+  lodsb              ; grab next char into al (si moves on by itself)
+  cmp al, 0          ; hit the 0 at the end?
   je .done
-  int 0x10           ; print the character in AL
+  int 0x10           ; bios prints whatever's in al
   jmp .loop
 .done:
-  popa               ; restore the registers we saved
+  popa               ; put the regs back
   ret
