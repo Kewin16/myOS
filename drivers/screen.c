@@ -58,6 +58,10 @@ void print_char(char c) {
 
     if (c == '\n') {
         pos = (pos / MAX_COLS + 1) * MAX_COLS;   // jump to the start of the next row
+    } else if (c == '\b') {
+        if (pos > 0) pos--;                      // go back one and blank it out
+        video[pos * 2] = ' ';
+        video[pos * 2 + 1] = WHITE_ON_BLACK;
     } else {
         video[pos * 2] = c;
         video[pos * 2 + 1] = WHITE_ON_BLACK;

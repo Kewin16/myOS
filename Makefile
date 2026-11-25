@@ -5,10 +5,10 @@ CC = i686-elf-gcc
 LD = i686-elf-ld
 CFLAGS = -ffreestanding -Wall -Wextra -O0
 
-# grab every .c file in kernel/ and drivers/, each one becomes a .o
-C_SOURCES = $(wildcard kernel/*.c drivers/*.c)
-HEADERS = $(wildcard kernel/*.h drivers/*.h)
-OBJ = $(C_SOURCES:.c=.o)
+# grab every .c file in kernel/, drivers/ and cpu/, each one becomes a .o
+C_SOURCES = $(wildcard kernel/*.c drivers/*.c cpu/*.c)
+HEADERS = $(wildcard kernel/*.h drivers/*.h cpu/*.h)
+OBJ = $(C_SOURCES:.c=.o) cpu/interrupt.o
 
 all: os-image.bin
 
@@ -24,7 +24,8 @@ boot/boot.bin: boot/*.asm
 kernel/kernel.bin: kernel/kernel_entry.o $(OBJ)
 	$(LD) -Ttext 0x1000 --oformat binary $^ -o $@
 
-kernel/kernel_entry.o: kernel/kernel_entry.asm
+# any .asm -> .o (for the kernel, not the boot sector)
+%.o: %.asm
 	nasm -f elf $< -o $@
 
 # any .c -> .o (rebuilds if a header changes too)
@@ -32,4 +33,4 @@ kernel/kernel_entry.o: kernel/kernel_entry.asm
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -f os-image.bin boot/*.bin kernel/*.bin kernel/*.o drivers/*.o
+	rm -f os-image.bin boot/*.bin kernel/*.bin kernel/*.o drivers/*.o cpu/*.o
